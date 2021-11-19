@@ -43,6 +43,11 @@ Public Class Form1
         SettingOperations.SaveChanges(settings)
     End Sub
     Private Sub Form1_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+
+        If Not SettingOperations.FileExists Then
+            SettingOperations.Create()
+        End If
+
         ShowAgainCheckBox.Checked = SettingOperations.ShowAgain
     End Sub
 

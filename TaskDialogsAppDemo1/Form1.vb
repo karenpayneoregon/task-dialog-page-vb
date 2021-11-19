@@ -1,4 +1,5 @@
-﻿Imports SupportLibrary.Classes
+﻿Imports System.IO
+Imports SupportLibrary.Classes
 
 Public Class Form1
     Private Sub YesNoCancelQuestionButton_Click(sender As Object, e As EventArgs) Handles YesNoCancelQuestionButton.Click
@@ -60,9 +61,9 @@ Public Class Form1
 
     Private Sub ErrorDialogButton_Click(sender As Object, e As EventArgs) Handles ErrorDialogButton.Click
         Try
-            Dim ohCrap = CType(sender, ListBox)
+            Dim ohCrap = File.ReadAllText("C:\Data\Orders.json")
         Catch ex As Exception
-            Dialogs.ErrorBox(ex)
+            Dialogs.ErrorBox(ex, My.Resources.agent1)
         End Try
     End Sub
 End Class
