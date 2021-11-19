@@ -4,4 +4,8 @@
         StopOperation
         No
     End Enum
+    Public Enum BackupType
+        Incremental
+        Full
+    End Enum
 End Namespace

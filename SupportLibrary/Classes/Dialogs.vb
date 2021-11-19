@@ -2,10 +2,16 @@
 Imports System.Windows.Forms
 
 Namespace Classes
+    ''' <summary>
+    ''' Collection of dialogs
+    ''' </summary>
+    ''' <remarks>
+    ''' Each dialog first parameter is owner, you can bypass this as shown in Information overload if so desire
+    ''' </remarks>
     Public Class Dialogs
         Public Delegate Sub OnReconnect(sender As Boolean)
         ''' <summary>
-        ''' For <see cref="ShowAutoClosingTaskDialog"/> to send decision back to caller
+        ''' For <see cref="AutoClosingTaskDialog"/> to send decision back to caller
         ''' </summary>
         Public Shared Event RetryHandler As OnReconnect
         ''' <summary>
@@ -70,15 +76,8 @@ Namespace Classes
                         .Heading = "Connection lost; reconnecting...",
                         .Text = String.Format(textFormat, (remainingTenthSeconds + 9) \ 10),
                         .Icon = New TaskDialogIcon(Icon),
-                        .ProgressBar = New TaskDialogProgressBar() With
-                        {
-                            .State = TaskDialogProgressBarState.Paused
-                        },
-                        .Buttons = New TaskDialogButtonCollection() From
-                        {
-                            reconnectButton,
-                            cancelButton
-                        }
+                        .ProgressBar = New TaskDialogProgressBar() With {.State = TaskDialogProgressBarState.Paused},
+                        .Buttons = New TaskDialogButtonCollection() From {reconnectButton, cancelButton}
                     }
 
             Using timer = New Timer() With {.Enabled = True, .Interval = 100}
@@ -123,11 +122,11 @@ Namespace Classes
             Dim DoNotSaveSave = New TaskDialogButton("Do&n't save") With {.Tag = DialogResult.No}
 
             Dim page = New TaskDialogPage() With {
-                    .Caption = caption,
-                    .SizeToContent = True,
-                    .Heading = heading,
-                    .Icon = TaskDialogIcon.Information,
-                    .Buttons = New TaskDialogButtonCollection() From {CancelButton, SaveButton, DoNotSaveSave}
+                        .Caption = caption,
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Information,
+                        .Buttons = New TaskDialogButtonCollection() From {CancelButton, SaveButton, DoNotSaveSave}
                     }
 
 
@@ -136,5 +135,191 @@ Namespace Classes
             Return CType(result.Tag, DialogResult)
 
         End Function
+        Public Shared Function Question(owner As Form, caption As String, heading As String, YesText As String, NoText As String) As Boolean
+
+            Dim YesButton = New TaskDialogButton(YesText) With {.Tag = DialogResult.Yes}
+            Dim NoButton = New TaskDialogButton(NoText) With {.Tag = DialogResult.No}
+
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = caption,
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Information,
+                        .Buttons = New TaskDialogButtonCollection() From {YesButton, NoButton}
+                    }
+
+
+            Dim result = TaskDialog.ShowDialog(owner, page)
+
+            Return CType(result.Tag, DialogResult) = DialogResult.Yes
+
+        End Function
+        Public Shared Function Question(owner As Form, heading As String) As Boolean
+
+            Dim YesButton = New TaskDialogButton("Yes") With {.Tag = DialogResult.Yes}
+            Dim NoButton = New TaskDialogButton("No") With {.Tag = DialogResult.No}
+
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = "Question",
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Information,
+                        .Buttons = New TaskDialogButtonCollection() From {NoButton, YesButton}
+                    }
+
+
+            Dim result = TaskDialog.ShowDialog(owner, page)
+
+            Return CType(result.Tag, DialogResult) = DialogResult.Yes
+
+        End Function
+        Public Shared Sub Information(owner As Form, heading As String, Optional buttonText As String = "Ok")
+
+            Dim SingleButton = New TaskDialogButton(buttonText)
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = "Information",
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Warning,
+                        .Buttons = New TaskDialogButtonCollection() From {SingleButton}
+                    }
+
+
+            TaskDialog.ShowDialog(owner, page)
+
+        End Sub
+
+        Public Shared Sub Information(heading As String, Optional buttonText As String = "Ok")
+
+            Dim SingleButton = New TaskDialogButton(buttonText)
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = "Information",
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Warning,
+                        .Buttons = New TaskDialogButtonCollection() From {SingleButton}
+                    }
+
+            '
+            ' Note that owner is not passed
+            '
+            TaskDialog.ShowDialog(page)
+
+        End Sub
+        Public Shared Sub ErrorBox(exception As Exception, Optional buttonText As String = "Silly programmer")
+
+            Dim SingleButton = New TaskDialogButton(buttonText)
+
+            Dim text = $"Encountered the following{vbLf}{exception.Message}"
+
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = "Information",
+                        .SizeToContent = True,
+                        .Heading = text,
+                        .Icon = TaskDialogIcon.Error,
+                        .Buttons = New TaskDialogButtonCollection() From {SingleButton}
+                    }
+
+
+            TaskDialog.ShowDialog(page)
+
+        End Sub
+        Public Shared Sub ErrorBox(exception As Exception, icon As Icon)
+
+            Dim SingleButton = New TaskDialogButton("Ooops")
+
+            Dim text = $"Encountered the following{vbLf}{exception.Message}"
+
+            Dim footer = New TaskDialogFootnote("Paid support available at (555) 555-5555")
+            footer.Icon = New TaskDialogIcon(icon)
+
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = "Information",
+                        .SizeToContent = True,
+                        .Heading = text,
+                        .Icon = TaskDialogIcon.Error,
+                        .Footnote = footer,
+                        .Buttons = New TaskDialogButtonCollection() From {SingleButton}
+                    }
+
+
+            TaskDialog.ShowDialog(page)
+
+        End Sub
+        Public Shared Function Question(owner As Form, caption As String, heading As String, YesText As String, NoText As String, DefaultButton As DialogResult) As Boolean
+
+            Dim YesButton = New TaskDialogButton(YesText) With {.Tag = DialogResult.Yes}
+            Dim NoButton = New TaskDialogButton(NoText) With {.Tag = DialogResult.No}
+
+            Dim buttons = New TaskDialogButtonCollection
+
+            If DefaultButton = DialogResult.Yes Then
+                buttons.Add(YesButton)
+                buttons.Add(NoButton)
+            Else
+                buttons.Add(NoButton)
+                buttons.Add(YesButton)
+            End If
+
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = caption,
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Information,
+                        .Buttons = buttons
+                    }
+
+
+            Dim result = TaskDialog.ShowDialog(owner, page)
+
+            Return CType(result.Tag, DialogResult) = DialogResult.Yes
+
+        End Function
+        Public Shared Function QuestionBackup(owner As Form, caption As String, heading As String) As (result As DialogResult, full As Boolean)
+
+            Dim ContinueButton = New TaskDialogButton("&Continue") With {.Tag = DialogResult.Yes}
+            Dim CancelButton = New TaskDialogButton("&Cancel") With {.Tag = DialogResult.Cancel}
+
+
+            Dim page = New TaskDialogPage() With {
+                        .Caption = caption,
+                        .SizeToContent = True,
+                        .Heading = heading,
+                        .Icon = TaskDialogIcon.Information,
+                        .Buttons = New TaskDialogButtonCollection() From {ContinueButton, CancelButton}
+                    }
+
+            Dim radioButtonFull = page.RadioButtons.Add("&Full backup")
+            Dim radioButtonIncremental = page.RadioButtons.Add("Incremental backup")
+
+            radioButtonFull.Checked = True
+
+            '
+            ' for a real application, if s pre action is needed insert code in CheckedChange or perhaps
+            ' raise an event.
+            '
+            AddHandler radioButtonFull.CheckedChanged,
+                Sub(s, e)
+                    'Debug.WriteLine("Full Backup: " & radioButtonFull.Checked)
+                End Sub
+
+            AddHandler radioButtonIncremental.CheckedChanged,
+                Sub(s, e)
+                    'Debug.WriteLine("Incremental Backup: " & radioButtonIncremental.Checked)
+                End Sub
+
+            Dim result = CType(TaskDialog.ShowDialog(owner, page).Tag, DialogResult)
+
+            Return (result, radioButtonFull.Checked)
+
+        End Function
+
     End Class
 End Namespace
