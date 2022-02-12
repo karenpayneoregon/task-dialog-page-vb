@@ -1,4 +1,4 @@
-# About
+# Using TaskDialog (VB.NET)
 
 This repository shows how to present various ways to communicate with users in Windows forms in place of MessageBox.
 
