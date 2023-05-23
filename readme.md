@@ -10,7 +10,9 @@ A seldom needed requirement, present a dialog and allow the user to click a Chec
 
 # Requires
 
-.NET Core 5x or higher
+:heavy_check_mark: .NET Core 7x or higher
+
+:heavy_check_mark: Microsoft Visual Studio 2022 or higher
 
 # Screenshots
 
